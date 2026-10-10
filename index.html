@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для тебя 🌸</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Montserrat:wght@300;400;600;700&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 30%, #a18cd1 70%, #84fab0 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #333;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Плавающие сердечки на фоне */
+        .bg-heart {
+            position: fixed;
+            font-size: 24px;
+            opacity: 0.3;
+            animation: floatUp linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(140, 82, 255, 0.25), 0 0 0 1px rgba(255,255,255,0.5);
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: popIn 0.8s ease-out;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        h1 {
+            font-family: 'Caveat', cursive;
+            font-size: 38px;
+            background: linear-gradient(135deg, #ff6b9d, #8c52ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        /* Плеер */
+        .player {
+            background: linear-gradient(135deg, rgba(255,107,157,0.1), rgba(140,82,255,0.1));
+            border: 1px solid rgba(255,107,157,0.3);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .play-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b9d, #8c52ff);
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .play-btn:hover { transform: scale(1.1); box-shadow: 0 10px 25px rgba(255, 107, 157, 0.6); }
+        .play-btn:active { transform: scale(0.95); }
+
+        .track-info { text-align: left; }
+        .track-title { font-size: 14px; color: #444; font-weight: 600; margin-bottom: 2px; }
+        .track-artist { font-size: 12px; color: #999; }
+
+        /* Экран игры */
+        .screen { display: none; animation: fadeSlide 0.6s ease; }
+        .screen.active { display: block; }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question {
+            font-size: 17px;
+            color: #444;
+            margin-bottom: 22px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.7);
+            border: 2px solid rgba(140, 82, 255, 0.2);
+            border-radius: 14px;
+            font-size: 15px;
+            color: #555;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn:hover {
+            background: linear-gradient(135deg, rgba(255,107,157,0.15), rgba(140,82,255,0.15));
+            border-color: #8c52ff;
+            color: #333;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.2);
+        }
+
+        .option-btn .emoji {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* Прогресс-бар */
+        .progress {
+            height: 6px;
+            background: rgba(140, 82, 255, 0.15);
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #8c52ff);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            width: 25%;
+        }
+
+        /* Финальный экран */
+        .final-screen {
+            animation: popIn 1s ease-out;
+        }
+
+        .final-emoji {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.15); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+        }
+
+        .final-message {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 20px;
+            text-align: left;
+            font-weight: 400;
+        }
+
+        .final-love {
+            font-family: 'Caveat', cursive;
+            font-size: 34px;
+            background: linear-gradient(135deg, #ff6b9d, #ff477e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 25px 0 15px;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        .final-wait {
+            font-size: 15px;
+            color: #8c52ff;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 16px 45px;
+            background: linear-gradient(135deg, #ff6b9d, #8c52ff);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 15px 35px rgba(255, 107, 157, 0.6);
+        }
+
+        .footer {
+            text-align: center;
+            color: #aaa;
+            margin-top: 25px;
+            font-family: 'Caveat', cursive;
+            font-size: 16px;
+        }
+
+        .hidden { display: none !important; }
+
+        .restart-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 15px;
+            text-decoration: underline;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .restart-btn:hover { color: #8c52ff; }
+    </style>
+</head>
+<body>
+
+<!-- Плавающие сердечки -->
+<div class="bg-heart" style="left: 10%; animation-duration: 12s; animation-delay: 0s;">💖</div>
+<div class="bg-heart" style="left: 25%; animation-duration: 15s; animation-delay: 2s;">✨</div>
+<div class="bg-heart" style="left: 50%; animation-duration: 10s; animation-delay: 4s;">💫</div>
+<div class="bg-heart" style="left: 70%; animation-duration: 14s; animation-delay: 1s;">🌸</div>
+<div class="bg-heart" style="left: 85%; animation-duration: 13s; animation-delay: 3s;">💕</div>
+<div class="bg-heart" style="left: 40%; animation-duration: 11s; animation-delay: 5s;">⭐</div>
+
+<div class="container" id="main-container">
+    
+    <h1 id="title">Привет, Варюша 🌸</h1>
+    <p class="subtitle" id="subtitle">это маленькая игра для тебя. дойди до конца.</p>
+
+    <!-- Плеер -->
+    <div class="player" id="player-box">
+        <button class="play-btn" id="play-button" onclick="startGame()">▶</button>
+        <div class="track-info">
+            <div class="track-title">Kimi Ni Okuru Uta</div>
+            <div class="track-artist">Sayuri Sugawara (Nightcore)</div>
+        </div>
+    </div>
+
+    <!-- Прогресс -->
+    <div class="progress hidden" id="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <!-- Экран 1 -->
+    <div class="screen" id="screen1">
+        <div class="question">Как ты себя чувствуешь прямо сейчас?</div>
+        <div class="options">
+            <button class="option-btn" onclick="nextScreen(2)"><span class="emoji">😔</span> Устала и всё бесит</button>
+            <button class="option-btn" onclick="nextScreen(2)"><span class="emoji">😐</span> Пусто и всё равно</button>
+            <button class="option-btn" onclick="nextScreen(2)"><span class="emoji">🥺</span> Мне просто нужно тепло</button>
+            <button class="option-btn" onclick="nextScreen(2)"><span class="emoji">😤</span> Я злюсь на тебя</button>
+        </div>
+    </div>
+
+    <!-- Экран 2 -->
+    <div class="screen" id="screen2">
+        <div class="question">Что бы ты сейчас выбрала?</div>
+        <div class="options">
+            <button class="option-btn" onclick="nextScreen(3)"><span class="emoji">🤗</span> Чтобы кто-то просто обнял</button>
+            <button class="option-btn" onclick="nextScreen(3)"><span class="emoji">🌙</span> Побыть одной, но знать, что я рядом</button>
+            <button class="option-btn" onclick="nextScreen(3)"><span class="emoji">💬</span> Поговорить и всё выяснить</button>
+            <button class="option-btn" onclick="nextScreen(3)"><span class="emoji">🎧</span> Послушать музыку и успокоиться</button>
+        </div>
+    </div>
+
+    <!-- Экран 3 -->
+    <div class="screen" id="screen3">
+        <div class="question">Я знаю, что иногда бываю не прав. Но одно я знаю точно...</div>
+        <div class="options">
+            <button class="option-btn" onclick="nextScreen(4)"><span class="emoji">💖</span> Что ты мне очень дорога</button>
+            <button class="option-btn" onclick="nextScreen(4)"><span class="emoji">🌟</span> Что я не хочу тебя терять</button>
+            <button class="option-btn" onclick="nextScreen(4)"><span class="emoji">🫂</span> Что я всегда буду рядом</button>
+            <button class="option-btn" onclick="nextScreen(4)"><span class="emoji">💫</span> Что ты — моё чудо</button>
+        </div>
+    </div>
+
+    <!-- Финальный экран -->
+    <div class="screen" id="screen4">
+        <div class="final-screen">
+            <div class="final-emoji">💖</div>
+            
+            <p class="final-message">
+                Я не знаю, что ты чувствуешь сейчас. Может, злишься. Может, устала. Может, тебе всё равно.
+            </p>
+            <p class="final-message">
+                Но я не могу молчать. Я должен сказать это.
+            </p>
+            
+            <div class="final-love">Я люблю тебя очень-очень сильно.</div>
+            <div class="final-love" style="font-size: 28px;">Ты мне нужна безумно.</div>
+            
+            <p class="final-wait">
+                Я очень жду, когда ты снова сможешь мне написать. Я не ушёл. Я здесь.<br>
+                Просто напиши мне. Пожалуйста.
+            </p>
+            
+            <!-- ВАШ TELEGRAM -->
+            <a href="https://t.me/sky4ikks" target="_blank" class="btn-primary">написать мне 💬</a>
+            
+            <br>
+            <button class="restart-btn" onclick="restart()">пройти заново</button>
+        </div>
+    </div>
+
+    <div class="footer" id="footer">сделано с любовью. для тебя.</div>
+</div>
+
+<div id="youtube-player" style="display: none;"></div>
+
+<script>
+    let currentScreen = 0;
+    let player;
+
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('youtube-player', {
+            height: '0',
+            width: '0',
+            videoId: 'NbMbkmYNGHw',
+            playerVars: {
+                'autoplay': 0,
+                'controls': 0,
+                'loop': 0,
+                'playsinline': 1
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerReady() {}
+
+    function onPlayerStateChange(event) {
+        // Если музыка закончилась — не показываем финал принудительно, 
+        // чтобы она могла дойти до конца сама.
+    }
+
+    function startGame() {
+        // Прячем плеер и заголовок, показываем первый экран
+        document.getElementById('player-box').classList.add('hidden');
+        document.getElementById('title').classList.add('hidden');
+        document.getElementById('subtitle').classList.add('hidden');
+        document.getElementById('progress-bar').classList.remove('hidden');
+        document.getElementById('footer').classList.add('hidden');
+        
+        if (player && player.playVideo) {
+            player.playVideo();
+        }
+
+        // Показываем первый экран
+        showScreen(1);
+    }
+
+    function nextScreen(num) {
+        // Скрываем текущий
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        
+        // Обновляем прогресс
+        const progress = (num / 4) * 100;
+        document.getElementById('progress-fill').style.width = progress + '%';
+
+        // Показываем следующий
+        const target = document.getElementById('screen' + num);
+        if (target) {
+            target.classList.add('active');
+        }
+
+        // Если это финальный экран — меняем заголовок
+        if (num === 4) {
+            document.getElementById('title').textContent = 'Ты дошла до конца 💖';
+            document.getElementById('title').classList.remove('hidden');
+            document.getElementById('subtitle').classList.add('hidden');
+            document.getElementById('progress-fill').style.width = '100%';
+        }
+    }
+
+    function showScreen(num) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById('screen' + num);
+        if (target) target.classList.add('active');
+        
+        const progress = (num / 4) * 100;
+        document.getElementById('progress-fill').style.width = progress + '%';
+    }
+
+    function restart() {
+        // Возвращаем всё в исходное состояние
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('player-box').classList.remove('hidden');
+        document.getElementById('title').textContent = 'Привет, Варюша 🌸'; // <-- ИСПРАВЛЕНО
+        document.getElementById('title').classList.remove('hidden');
+        document.getElementById('subtitle').classList.remove('hidden');
+        document.getElementById('progress-bar').classList.add('hidden');
+        document.getElementById('footer').classList.remove('hidden');
+        document.getElementById('progress-fill').style.width = '0%';
+        
+        if (player && player.seekTo) {
+            player.seekTo(0);
+            player.pauseVideo();
+        }
+    }
+</script>
+
+</body>
+</html>
